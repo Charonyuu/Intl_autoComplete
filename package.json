@@ -1,0 +1,58 @@
+{
+  "name": "intl-snippets",
+  "displayName": "intlAuto",
+  "description": "react-intl snippet ",
+  "version": "0.0.1",
+  "publisher": "charonyuu",
+  "icon": "images/icon.png",
+  "engines": {
+    "vscode": "^1.86.0"
+  },
+  "repository": {
+
+  },
+  "categories": [
+    "Snippets"
+  ],
+  "main": "./index.js",
+  "activationEvents": [
+    "onCommand:extension.findKey"
+  ],
+  "contributes": {
+    "snippets": [
+       {
+        "language": "javascript",
+        "path": "./snippets/my-snippets.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "extension.findKey",
+        "title": "Find Key for Selected Value in en.json"
+      }
+    ],
+    "languages": [
+      {
+        "id": "javascript",
+        "extensions": [ ".js" ]
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "extension.findKey",
+          "when": "editorTextFocus"
+        }
+      ]
+    },
+    "keybindings": [
+    {
+      "command": "extension.findKey",
+      "key": "alt+k",
+      "mac": "alt+k",
+      "when": "editorTextFocus"
+    }
+  ]
+  },
+  "license": "MIT"
+}

@@ -1,4 +1,22 @@
 {
+  "intl Component": {
+    "prefix": "rfm",
+    "scope": "javascript,typescript,javascriptreact,typescriptreact",
+    "body": [
+      "import React from 'react'",
+      "import { useIntl } from 'react-intl';",
+      "import { Box } from '@mui/material';",
+      "",
+      "const Component = () => {",
+      "    const { formatMessage } = useIntl();",
+      "    return (",
+      "        <div>Component</div>",
+      "    );",
+      "};",
+      "",
+      "export default Component;"
+    ]
+  },
   "useIntl formatMessage": {
     "prefix": "ufm",
     "scope": "javascript,typescript,javascriptreact,typescriptreact",

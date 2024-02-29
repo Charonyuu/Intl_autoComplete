@@ -2,6 +2,21 @@ const vscode = require("vscode");
 const fs = require("fs");
 const path = require("path"); // 确保你也引入了 path 模块
 
+function findJsonFile(directory, fileName) {
+  const files = fs.readdirSync(directory);
+  for (const file of files) {
+    const fullPath = path.join(directory, file);
+    const stat = fs.statSync(fullPath);
+    if (stat.isDirectory()) {
+      const result = findJsonFile(fullPath, fileName);
+      if (result) return result; 
+    } else if (file === fileName) {
+      return fullPath;
+    }
+  }
+  return null; 
+}
+
 exports.activate = function (context) {
   let disposable = vscode.commands.registerCommand("extension.findKey", () => {
     const editor = vscode.window.activeTextEditor;
@@ -9,24 +24,39 @@ exports.activate = function (context) {
       const selection = editor.selection;
       const selectedText = editor.document.getText(selection);
       if (selectedText) {
-        const workspaceFolders = vscode.workspace.workspaceFolders;
-        if (workspaceFolders && workspaceFolders.length > 0) {
-          const workspaceRoot = workspaceFolders[0].uri.fsPath;
-          // 指定相对于工作区根目录的en.json文件的路径
-          const jsonFilePath = path.join(
-            workspaceRoot,
+        const currentFileUri = editor.document.uri;
+
+        const workspaceFolder =
+          vscode.workspace.getWorkspaceFolder(currentFileUri);
+        if (workspaceFolder) {
+          const workspaceRoot = workspaceFolder.uri.fsPath;
+          const currentFilePath = currentFileUri.fsPath;
+          // 計算當前檔案相對於工作區根目錄的相對路徑
+          const relativePath = path.relative(workspaceRoot, currentFilePath);
+          // 獲取 relativePath 的第一個目錄名稱，位於哪個子目錄下
+          const firstDirectory = relativePath.split(path.sep)[0];
+
+          let hasJson = false;
+          const currentRootFilePath = path.join(workspaceRoot, firstDirectory);
+          let jsonFilePath = path.join(
+            currentRootFilePath,
             "src",
             "locales",
             "intl",
             "en.json"
           );
-
-          // 检查en.json文件是否存在
           if (fs.existsSync(jsonFilePath)) {
+            hasJson = true;
+          } else {
+            jsonFilePath = findJsonFile(currentRootFilePath, "en.json");
+            if (jsonFilePath) {
+              hasJson = true;
+            }
+          }
+          if (hasJson) {
             const jsonString = fs.readFileSync(jsonFilePath, "utf8");
             const jsonObject = JSON.parse(jsonString);
             const keys = Object.keys(jsonObject);
-            let found = false;
 
             for (const key of keys) {
               const text = selectedText.trim();
@@ -52,11 +82,9 @@ exports.activate = function (context) {
                 return;
               }
             }
-            if (!found) {
-              vscode.window.showInformationMessage(
-                `No key found for value "${selectedText}" in en.json`
-              );
-            }
+            vscode.window.showInformationMessage(
+              `No key found for value "${selectedText}" in en.json`
+            );
           } else {
             vscode.window.showInformationMessage(
               "en.json not found in the specified directory"

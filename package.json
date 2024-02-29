@@ -8,9 +8,7 @@
   "engines": {
     "vscode": "^1.85.1"
   },
-  "repository": {
-
-  },
+  "repository": {},
   "categories": [
     "Snippets"
   ],
@@ -21,8 +19,8 @@
   "contributes": {
     "snippets": [
       {
-      "language": "javascript",
-      "path": "./snippets/my-snippets.json"
+        "language": "javascript",
+        "path": "./snippets/my-snippets.json"
       },
       {
         "language": "javascriptreact",
@@ -46,7 +44,9 @@
     "languages": [
       {
         "id": "javascript",
-        "extensions": [ ".js" ]
+        "extensions": [
+          ".js"
+        ]
       }
     ],
     "menus": {
@@ -58,16 +58,24 @@
       ]
     },
     "keybindings": [
-    {
-      "command": "extension.findKey",
-      "key": "alt+k",
-      "mac": "alt+k",
-      "when": "editorTextFocus"
+      {
+        "command": "extension.findKey",
+        "key": "alt+k",
+        "mac": "alt+k",
+        "when": "editorTextFocus"
+      }
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm version patch && git add package.json"
     }
-  ]
   },
   "scripts": {
-    "build":"vsce package"
+    "build": "vsce package"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "husky": "^9.0.11"
+  }
 }

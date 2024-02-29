@@ -2,11 +2,11 @@
   "name": "intl-snippets",
   "displayName": "intlAuto",
   "description": "react-intl snippet ",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "charonyuu",
   "icon": "images/icon.png",
   "engines": {
-    "vscode": "^1.86.0"
+    "vscode": "^1.85.1"
   },
   "repository": {
 
@@ -20,8 +20,20 @@
   ],
   "contributes": {
     "snippets": [
-       {
-        "language": "javascript",
+      {
+      "language": "javascript",
+      "path": "./snippets/my-snippets.json"
+      },
+      {
+        "language": "javascriptreact",
+        "path": "./snippets/my-snippets.json"
+      },
+      {
+        "language": "typescript",
+        "path": "./snippets/my-snippets.json"
+      },
+      {
+        "language": "typescriptreact",
         "path": "./snippets/my-snippets.json"
       }
     ],
@@ -53,6 +65,9 @@
       "when": "editorTextFocus"
     }
   ]
+  },
+  "scripts": {
+    "build":"vsce package"
   },
   "license": "MIT"
 }

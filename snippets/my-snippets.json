@@ -4,23 +4,20 @@
     "scope": "javascript,typescript,javascriptreact,typescriptreact",
     "body": [
       "const {formatMessage} = useIntl()"
-    ],
-    "description": "Log output to console"
+    ]
   },
   "add formatMessage": {
     "prefix": "fm",
     "scope": "javascript,typescript,javascriptreact,typescriptreact",
     "body": [
       "formatMessage({ id: '$1' })"
-    ],
-    "description": "Log output to console"
+    ]
   },
   "add formatMessage in jsx {}": {
     "prefix": "fmx",
     "scope": "javascript,typescript,javascriptreact,typescriptreact",
     "body": [
       "{formatMessage({ id: '$1' })}"
-    ],
-    "description": "Log output to console"
+    ]
   }
 }

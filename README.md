@@ -17,7 +17,14 @@ This extension provides a command `extension.findKey` that performs the followin
 
 1. Retrieves the selected text in the editor.
    
-2. Checks for the presence of an `en.json` file in the specified directory.
+2. Checks for the presence of an `en.json` file in the directory.
+```
+recommand folder structure
+   /src
+      /locales
+         /intl
+            /en.json
+```
 
 3. Parses the JSON file and searches for keys corresponding to the selected text.
 

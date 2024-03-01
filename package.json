@@ -2,7 +2,7 @@
   "name": "intl-snippets",
   "displayName": "intl_autoComplete",
   "description": "react-intl snippet ",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "publisher": "charonyuu",
   "icon": "images/icon.png",
   "engines": {
@@ -10,7 +10,7 @@
   },
   "repository": {},
   "categories": [
-    "Snippets"
+    "Snippets","Extension Packs","Formatters"
   ],
   "main": "./index.js",
   "activationEvents": [
@@ -67,7 +67,8 @@
     ]
   },
   "scripts": {
-    "build": "vsce package"
+    "build": "vsce package",
+    "update": "npm version patch"
   },
   "license": "MIT"
 }

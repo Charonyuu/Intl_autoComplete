@@ -19,7 +19,7 @@ This extension provides a command `extension.findKey` that performs the followin
    
 2. Checks for the presence of an `en.json` file in the directory.
 ```
-recommand folder structure
+recommand folder structure(Non-essential)
    /src
       /locales
          /intl
@@ -48,10 +48,13 @@ To use the extension:
 
 ## Known Issues
 
-## Release Notes 1.0.3
+- confict with Babel Javascript extension,when vscode 認為 file is babel-javascript , snippet 會失效
+
+## Release Notes 1.0.4
 
 - Initial release of the intl-snippets extension.
 - Includes snippets for common formatMessage usage scenarios.
 - Initial release of the FindKey extension.
 - Allows users to find keys in an `en.json` file based on selected text and replace it with the corresponding `formatMessage` function.
 - Fixed the issue that required a specific path
+- Update readme 

@@ -4,13 +4,12 @@
 
 ### Snippets Included
 
-`rfm` (intl Component): Simplifies initializing an intl React component.
-
-`ufm` (useIntl formatMessage): Inserts `const {formatMessage} = useIntl()` to access the formatMessage function in React components.
-
-`fm` (add formatMessage): Inserts `formatMessage({ id: '$1' })` to simplify invoking the formatMessage function with a given message ID.
-
-`fmx` (add formatMessage in jsx {}): Inserts `{formatMessage({ id: '$1' })}` for embedding the formatMessage function within JSX code.
+| Snippet  | Purpose | Description |
+| ------------- | ------------- | ------------- |
+| `rfm`  | intl Component  | Simplifies initializing an intl React component. |
+| `ufm`  | useIntl formatMessage  | Inserts `const {formatMessage} = useIntl()` to access the formatMessage function in React components. |
+| `fm`  | add formatMessage  | Inserts `formatMessage({ id: '$1' })` to simplify invoking the formatMessage function with a given message ID. |
+| `fmx`  | add formatMessage in jsx {}  | Inserts `{formatMessage({ id: '$1' })}` for embedding the formatMessage function within JSX code. |
 
 ### Extension Included
 

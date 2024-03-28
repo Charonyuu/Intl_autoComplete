@@ -122,114 +122,103 @@ exports.activate = function (context) {
     if (editor) {
       const selection = editor.selection;
       const selectedText = editor.document.getText(selection);
-      if (selectedText) {
-        const currentFileUri = editor.document.uri;
-
-        const workspaceFolder =
-          vscode.workspace.getWorkspaceFolder(currentFileUri);
-        if (workspaceFolder) {
-          const workspaceRoot = workspaceFolder.uri.fsPath;
-          const currentFilePath = currentFileUri.fsPath;
-          // 計算當前檔案相對於工作區根目錄的相對路徑
-          const relativePath = path.relative(workspaceRoot, currentFilePath);
-          // 獲取 relativePath 的第一個目錄名稱，位於哪個子目錄下
-          const firstDirectory = relativePath.split(path.sep)[0];
-          const currentRootFilePath = path.join(workspaceRoot, firstDirectory);
-          const jsonFilePath = findJsonFile(currentRootFilePath, "en.json");
-
-          if (jsonFilePath) {
-            const jsonString = fs.readFileSync(jsonFilePath, "utf8");
-            const jsonObject = JSON.parse(jsonString);
-            const keys = Object.keys(jsonObject);
-            let match = [];
-            const text = selectedText.trim();
-            for (const key of keys) {
-              if (text.startsWith('"') && text.endsWith('"')) {
-                const str = text.substring(1, text.length - 1);
-                if (jsonObject[key].trim() === str) {
-                  match.push(key);
-                }
-              }
-              if (jsonObject[key].trim() === text) {
-                match.push(key);
-              }
-            }
-            if (match.length > 0) {
-              quickReplaceKeyWhenSingle(context, match.length).then(
-                (replace) => {
-                  if (match.length === 1 && replace) {
-                    replaceKey(match[0], text, selection, editor);
-                  } else {
-                    const pickItems = match.map((key) => ({
-                      label: key,
-                      description: `Replace with formatMessage({ id: '${key}' })`,
-                    }));
-                    pickItems.unshift({
-                      label: "Click to Enter replacement manually",
-                      description: "Type your own replacement",
-                    });
-                    vscode.window
-                      .showQuickPick(pickItems, {
-                        placeHolder: `keys found for "${selectedText}", select one or enter manually:`,
-                      })
-                      .then((selectedItem) => {
-                        if (!selectedItem) {
-                          return;
-                        } else if (
-                          selectedItem.label ===
-                          "Click to Enter replacement manually"
-                        ) {
-                          // 如果用戶選擇手動輸入，使用 showInputBox 收集用戶輸入
-                          vscode.window
-                            .showInputBox({
-                              prompt: "Enter your replacement key",
-                            })
-                            .then((replacementKey) => {
-                              replaceKey(
-                                replacementKey,
-                                text,
-                                selection,
-                                editor
-                              );
-
-                              // 提示用戶是否添加到 en.json
-                              const addToJson = promptToAddKey(context);
-                              if (addToJson) {
-                                addToEnJson(jsonFilePath, replacementKey, text);
-                              }
-                            });
-                        } else {
-                          // 如果用戶選擇了一個預定義的替換選項
-                          replaceKey(
-                            selectedItem.label,
-                            text,
-                            selection,
-                            editor
-                          );
-                        }
-                      });
-                  }
-                }
-              );
-            } else {
-              vscode.window.showInformationMessage(
-                `No key found for value "${selectedText}" in en.json`
-              );
-              return;
-            }
-          } else {
-            vscode.window.showInformationMessage(
-              "en.json not found in the specified directory"
-            );
-          }
-        }
-        vscode.window.showInformationMessage(
-          `No key found for value "${selectedText}" in en.json`
-        );
-      } else {
+      if (!selectedText) {
         vscode.window.showInformationMessage(
           "Please select some text before running this command."
         );
+        return;
+      }
+
+      const currentFileUri = editor.document.uri;
+
+      const workspaceFolder =
+        vscode.workspace.getWorkspaceFolder(currentFileUri);
+      if (!workspaceFolder) {
+        vscode.window.showInformationMessage(
+          "en.json not found in the specified directory"
+        );
+        return;
+      }
+      const workspaceRoot = workspaceFolder.uri.fsPath;
+      const currentFilePath = currentFileUri.fsPath;
+      // 計算當前檔案相對於工作區根目錄的相對路徑
+      const relativePath = path.relative(workspaceRoot, currentFilePath);
+      // 獲取 relativePath 的第一個目錄名稱，位於哪個子目錄下
+      const firstDirectory = relativePath.split(path.sep)[0];
+      const currentRootFilePath = path.join(workspaceRoot, firstDirectory);
+      const jsonFilePath = findJsonFile(currentRootFilePath, "en.json");
+
+      if (!jsonFilePath) {
+        vscode.window.showInformationMessage(
+          "en.json not found in the specified directory"
+        );
+        return;
+      }
+      const jsonString = fs.readFileSync(jsonFilePath, "utf8");
+      const jsonObject = JSON.parse(jsonString);
+      const keys = Object.keys(jsonObject);
+      let match = [];
+      const text = selectedText.trim();
+      for (const key of keys) {
+        if (text.startsWith('"') && text.endsWith('"')) {
+          const str = text.substring(1, text.length - 1);
+          if (jsonObject[key].trim() === str) {
+            match.push(key);
+          }
+        }
+        if (jsonObject[key].trim() === text) {
+          match.push(key);
+        }
+      }
+      if (match.length > 0) {
+        quickReplaceKeyWhenSingle(context, match.length).then((replace) => {
+          if (match.length === 1 && replace) {
+            replaceKey(match[0], text, selection, editor);
+          } else {
+            const pickItems = match.map((key) => ({
+              label: key,
+              description: `Replace with formatMessage({ id: '${key}' })`,
+            }));
+            pickItems.unshift({
+              label: "Click to Enter replacement manually",
+              description: "Type your own replacement",
+            });
+            vscode.window
+              .showQuickPick(pickItems, {
+                placeHolder: `keys found for "${selectedText}", select one or enter manually:`,
+              })
+              .then((selectedItem) => {
+                if (!selectedItem) {
+                  return;
+                } else if (
+                  selectedItem.label === "Click to Enter replacement manually"
+                ) {
+                  // 如果用戶選擇手動輸入，使用 showInputBox 收集用戶輸入
+                  vscode.window
+                    .showInputBox({
+                      prompt: "Enter your replacement key",
+                    })
+                    .then((replacementKey) => {
+                      replaceKey(replacementKey, text, selection, editor);
+
+                      // 提示用戶是否添加到 en.json
+                      const addToJson = promptToAddKey(context);
+                      if (addToJson) {
+                        addToEnJson(jsonFilePath, replacementKey, text);
+                      }
+                    });
+                } else {
+                  // 如果用戶選擇了一個預定義的替換選項
+                  replaceKey(selectedItem.label, text, selection, editor);
+                }
+              });
+          }
+        });
+      } else {
+        vscode.window.showInformationMessage(
+          `No key found for value "${selectedText}" in en.json`
+        );
+        return;
       }
     }
   });

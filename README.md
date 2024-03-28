@@ -47,12 +47,12 @@ To use the extension:
 
 - confict with Babel Javascript extension,when vscode consider the file is babel-javascript , snippet will fail
 
-## Release Notes 1.0.4
+## Release Notes 1.0.6
 
 - Initial release of the intl-snippets extension.
 - Includes snippets for common formatMessage usage scenarios.
 - Initial release of the FindKey extension.
 - Allows users to find keys in an `en.json` file based on selected text and replace it with the corresponding `formatMessage` function.
 - Fixed the issue that required a specific path
-- Add vscode Notification when finding multiple key
+- Quick
 - Add trim() for selected text and en.json text when comparing

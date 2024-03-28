@@ -20,6 +20,62 @@ function findJsonFile(directory, fileName) {
   return null;
 }
 
+function addToEnJson(jsonFilePath, replacementKey, text) {
+  const uri = vscode.Uri.file(jsonFilePath);
+  vscode.workspace.fs.readFile(uri).then(
+    (fileBuffer) => {
+      // 將讀取到的檔案內容解析為 JSON 對象
+      const jsonContent = JSON.parse(fileBuffer.toString());
+
+      // 添加新的鍵值對
+      jsonContent[replacementKey] = text;
+
+      // 將修改後的 JSON 對象轉換回字串格式
+      const updatedContent = JSON.stringify(jsonContent, null, 2);
+
+      // 寫回修改後的內容到 en.json 檔案
+      vscode.workspace.fs
+        .writeFile(uri, Buffer.from(updatedContent))
+        .then(() => {
+          vscode.window.showInformationMessage(
+            `Added "${replacementKey}": "${text}" to en.json`
+          );
+        });
+    },
+    (error) => {
+      vscode.window.showErrorMessage("Failed to read en.json");
+    }
+  );
+}
+
+function promptToAddKey(context, jsonFilePath, replacementKey, text) {
+  // 檢查是否已經有 'alwaysAddToEnJson' 的設置
+  const alwaysAdd = context.globalState.get("alwaysAddToEnJson", false);
+
+  if (alwaysAdd) {
+    // 如果用戶之前選擇了 'Always Allow'，直接添加而不再詢問
+    addToEnJson(jsonFilePath, replacementKey, text);
+  } else {
+    // 否則，詢問用戶是否添加，並提供一個 'Always Allow' 選項
+    vscode.window
+      .showInformationMessage(
+        `Do you want to add the key to en.json?`,
+        "Yes",
+        "Always Allow",
+        "No"
+      )
+      .then((answer) => {
+        if (answer === "Yes" || answer === "Always Allow") {
+          if (answer === "Always Allow") {
+            // 如果選擇 'Always Allow'，將這個選項保存到全局狀態中
+            context.globalState.update("alwaysAddToEnJson", true);
+          }
+          addToEnJson(jsonFilePath, replacementKey, text);
+        }
+      });
+  }
+}
+
 exports.activate = function (context) {
   let disposable = vscode.commands.registerCommand("extension.findKey", () => {
     const editor = vscode.window.activeTextEditor;
@@ -59,25 +115,65 @@ exports.activate = function (context) {
               }
             }
 
-            if (match.length === 1) {
-              const formatMessageId = `formatMessage({ id: '${match[0]}' })`;
-              const replacementText =
-                text.startsWith('"') && text.endsWith('"')
-                  ? formatMessageId
-                  : `{${formatMessageId}}`;
-              editor.edit((editBuilder) => {
-                editBuilder.replace(selection, replacementText);
+            if (match.length > 0) {
+              const pickItems = match.map((key) => ({
+                label: key,
+                description: `Replace with formatMessage({ id: '${key}' })`,
+              }));
+              pickItems.unshift({
+                label: "Click to Enter replacement manually",
+                description: "Type your own replacement",
               });
-            } else if (match.length > 1) {
-              match.forEach((key) => {
-                vscode.window.showInformationMessage(
-                  `Multiple keys found for value "${selectedText}" in en.json: ${key}`
-                );
-              });
+              vscode.window
+                .showQuickPick(pickItems, {
+                  placeHolder: `Multiple keys found for "${selectedText}", select one or enter manually:`,
+                })
+                .then((selectedItem) => {
+                  if (!selectedItem) {
+                    return;
+                  } else if (
+                    selectedItem.label === "Click to Enter replacement manually"
+                  ) {
+                    // 如果用戶選擇手動輸入，使用 showInputBox 收集用戶輸入
+                    vscode.window
+                      .showInputBox({
+                        prompt: "Enter your replacement key",
+                      })
+                      .then((replacementKey) => {
+                        const formatMessageId = `formatMessage({ id: '${replacementKey}' })`;
+                        if (formatMessageId) {
+                          editor.edit((editBuilder) => {
+                            editBuilder.replace(selection, formatMessageId);
+                          });
+                        }
+
+                        // 提示用戶是否添加到 en.json
+                        promptToAddKey(
+                          context,
+                          jsonFilePath,
+                          replacementKey,
+                          text
+                        );
+                      });
+                  } else {
+                    // 如果用戶選擇了一個預定義的替換選項
+                    const formatMessageId = `formatMessage({ id: '${selectedItem.label}' })`;
+                    const replacementText =
+                      text.startsWith('"') && text.endsWith('"')
+                        ? formatMessageId
+                        : `{${formatMessageId}}`;
+
+                    editor.edit((editBuilder) => {
+                      editBuilder.replace(selection, replacementText);
+                    });
+                  }
+                });
+              return;
             } else {
               vscode.window.showInformationMessage(
                 `No key found for value "${selectedText}" in en.json`
               );
+              return;
             }
           } else {
             vscode.window.showInformationMessage(

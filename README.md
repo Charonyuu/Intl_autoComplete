@@ -59,7 +59,7 @@ To use the extension:
 
 - There is a conflict with the Babel JavaScript extension. When Visual Studio Code considers the file as babel-javascript, the snippets may fail to work properly.
 
-## Release Notes 1.0.6
+## Release Notes 1.0.8
 
 - Initial release of the intl-snippets extension.
 - Includes snippets for simplifying intl React component initialization and formatMessage usage.
@@ -71,3 +71,4 @@ To use the extension:
 - Added preference option to replace single keys with the same value or manually choose/enter the key.
 - Implemented the trim() function to remove leading and trailing whitespace from the selected text and en.json text when comparing.
 - You can reset the preference by using the `resetIntlPreference` command in the command palette.
+- Update new logo~

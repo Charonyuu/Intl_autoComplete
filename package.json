@@ -2,7 +2,7 @@
   "name": "intl-snippets",
   "displayName": "intl_autoComplete",
   "description": "react-intl snippet ",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "publisher": "charonyuu",
   "icon": "images/icon.png",
   "engines": {

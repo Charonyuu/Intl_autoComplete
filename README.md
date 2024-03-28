@@ -2,22 +2,23 @@
 
 ## Features
 
-Snippets Included
+### Snippets Included
 
-`rfm` (intl Component): Simplifies initializing an intl React component..
+`rfm` (intl Component): Simplifies initializing an intl React component.
 
-`ufm` (useIntl formatMessage): Inserts `const {formatMessage} = useIntl()` which is used to access the formatMessage function in React components.
+`ufm` (useIntl formatMessage): Inserts `const {formatMessage} = useIntl()` to access the formatMessage function in React components.
 
-`fm` (add formatMessage): Inserts `formatMessage({ id: '$1' })`, simplifying the invocation of the formatMessage function with a given message ID.
+`fm` (add formatMessage): Inserts `formatMessage({ id: '$1' })` to simplify invoking the formatMessage function with a given message ID.
 
-`fmx` (add formatMessage in jsx {}): Inserts `{formatMessage({ id: '$1' })}`, useful for embedding the formatMessage function within JSX code.
+`fmx` (add formatMessage in jsx {}): Inserts `{formatMessage({ id: '$1' })}` for embedding the formatMessage function within JSX code.
 
-Extension Included
+### Extension Included
+
 This extension provides a command `extension.findKey` that performs the following steps:
 
 1. Retrieves the selected text in the editor.
-   
 2. Checks for the presence of an `en.json` file in the directory.
+
 ```
 recommand folder structure(Non-essential)
    /src
@@ -43,6 +44,14 @@ To use the extension:
 
 4. If a matching key is found, the selected text will be replaced with the `formatMessage` function containing the key.
 
+5. If multiple keys have the same value, a quick pick will appear for you to select the correct key.
+
+6. You can choose whether to add the key to the `en.json` file or not using the preference option.
+
+7. If you prefer, you can manually choose or enter the key instead of replacing it automatically.
+
+8. The extension now trims leading and trailing whitespace from the selected text and `en.json` text when comparing.
+
 ## Known Issues
 
 - confict with Babel Javascript extension,when vscode consider the file is babel-javascript , snippet will fail
@@ -50,9 +59,11 @@ To use the extension:
 ## Release Notes 1.0.6
 
 - Initial release of the intl-snippets extension.
-- Includes snippets for common formatMessage usage scenarios.
-- Initial release of the FindKey extension.
+- Includes snippets for simplifying intl React component initialization and formatMessage usage.
+- Added the FindKey extension.
 - Allows users to find keys in an `en.json` file based on selected text and replace it with the corresponding `formatMessage` function.
-- Fixed the issue that required a specific path
-- Quick
-- Add trim() for selected text and en.json text when comparing
+- Fixed the issue that required a specific path.
+- Added a quick pick for selecting the correct key when multiple keys have the same value.
+- Added a preference option to choose whether to add the key to en.json or not.
+- Added preference option to replace single keys with the same value or manually choose/enter the key.
+- Implemented the trim() function to remove leading and trailing whitespace from the selected text and en.json text when comparing.

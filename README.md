@@ -32,23 +32,20 @@ recommand folder structure(Non-essential)
 
 5. Shows information messages in case of errors or when no key is found.
 
-
 ## Usage
 
 To use the extension:
 
 1. Open a file in Visual Studio Code.
-   
 2. Select the text you want to find a key for.
 
 3. Run the command `Find Key` either by pressing `Ctrl+Shift+P` to open the command palette and typing `Find Key`, or by clicking `alt(option)+k` on the selected text.
 
 4. If a matching key is found, the selected text will be replaced with the `formatMessage` function containing the key.
 
-
 ## Known Issues
 
-- confict with Babel Javascript extension,when vscode 認為 file is babel-javascript , snippet 會失效
+- confict with Babel Javascript extension,when vscode consider the file is babel-javascript , snippet will fail
 
 ## Release Notes 1.0.4
 
@@ -57,4 +54,5 @@ To use the extension:
 - Initial release of the FindKey extension.
 - Allows users to find keys in an `en.json` file based on selected text and replace it with the corresponding `formatMessage` function.
 - Fixed the issue that required a specific path
-- Update readme 
+- Add vscode Notification when finding multiple key
+- Add trim() for selected text and en.json text when comparing

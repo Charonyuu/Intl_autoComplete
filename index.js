@@ -20,6 +20,7 @@ function findJsonFile(directory, fileName) {
   return null;
 }
 
+// 添加新的鍵值對到 en.json
 function addToEnJson(jsonFilePath, replacementKey, text) {
   const uri = vscode.Uri.file(jsonFilePath);
   vscode.workspace.fs.readFile(uri).then(
@@ -48,32 +49,71 @@ function addToEnJson(jsonFilePath, replacementKey, text) {
   );
 }
 
-function promptToAddKey(context, jsonFilePath, replacementKey, text) {
+// 提示用戶是否添加到 en.json
+function promptToAddKey(context) {
   // 檢查是否已經有 'alwaysAddToEnJson' 的設置
   const alwaysAdd = context.globalState.get("alwaysAddToEnJson", false);
 
-  if (alwaysAdd) {
-    // 如果用戶之前選擇了 'Always Allow'，直接添加而不再詢問
-    addToEnJson(jsonFilePath, replacementKey, text);
+  if (alwaysAdd) return true;
+  // 否則，詢問用戶是否添加，並提供一個 'Always Allow' 選項
+  const answer = vscode.window.showInformationMessage(
+    `Do you want to add the key to en.json?`,
+    "Yes",
+    "Always Allow",
+    "No"
+  );
+
+  if (answer === "Yes" || answer === "Always Allow") {
+    if (answer === "Always Allow") {
+      // 如果選擇 'Always Allow'，將這個選項保存到全局狀態中
+      context.globalState.update("alwaysAddToEnJson", true);
+    }
+    return true;
   } else {
-    // 否則，詢問用戶是否添加，並提供一個 'Always Allow' 選項
-    vscode.window
-      .showInformationMessage(
-        `Do you want to add the key to en.json?`,
-        "Yes",
-        "Always Allow",
-        "No"
-      )
-      .then((answer) => {
-        if (answer === "Yes" || answer === "Always Allow") {
-          if (answer === "Always Allow") {
-            // 如果選擇 'Always Allow'，將這個選項保存到全局狀態中
-            context.globalState.update("alwaysAddToEnJson", true);
-          }
-          addToEnJson(jsonFilePath, replacementKey, text);
-        }
-      });
+    return false;
   }
+}
+
+// 快速替換單個鍵值對
+async function quickReplaceKeyWhenSingle(context, matchLength) {
+  if (matchLength > 1) return false;
+  const replacePreference = context.globalState.get(
+    "IntlReplacePreference",
+    false
+  );
+
+  if (replacePreference === "Always Replace") return true;
+  if (replacePreference === "Always Manually") return false;
+  // 否則，詢問用戶是否添加，並提供一個 'Always Allow' 選項
+  const answer = await vscode.window.showQuickPick(
+    ["Always Replace", "Replace", "Select Manually", "Always Manually"],
+    {
+      placeHolder: "Quick Replace the selected text with single matched key?",
+    }
+  );
+
+  if (answer === "Always Manually") {
+    context.globalState.update("IntlReplacePreference", "Always Manually");
+    return false;
+  }
+  if (answer === "Always Replace") {
+    context.globalState.update("IntlReplacePreference", "Always Replace");
+    return true;
+  }
+  if (answer === "Replace") return true;
+  return false;
+}
+
+function replaceKey(key, text, selection, editor) {
+  const formatMessageId = `formatMessage({ id: '${key}' })`;
+  const replacementText =
+    text.startsWith('"') && text.endsWith('"')
+      ? formatMessageId
+      : `{${formatMessageId}}`;
+
+  editor.edit((editBuilder) => {
+    editBuilder.replace(selection, replacementText);
+  });
 }
 
 exports.activate = function (context) {
@@ -114,61 +154,63 @@ exports.activate = function (context) {
                 match.push(key);
               }
             }
-
             if (match.length > 0) {
-              const pickItems = match.map((key) => ({
-                label: key,
-                description: `Replace with formatMessage({ id: '${key}' })`,
-              }));
-              pickItems.unshift({
-                label: "Click to Enter replacement manually",
-                description: "Type your own replacement",
-              });
-              vscode.window
-                .showQuickPick(pickItems, {
-                  placeHolder: `Multiple keys found for "${selectedText}", select one or enter manually:`,
-                })
-                .then((selectedItem) => {
-                  if (!selectedItem) {
-                    return;
-                  } else if (
-                    selectedItem.label === "Click to Enter replacement manually"
-                  ) {
-                    // 如果用戶選擇手動輸入，使用 showInputBox 收集用戶輸入
-                    vscode.window
-                      .showInputBox({
-                        prompt: "Enter your replacement key",
-                      })
-                      .then((replacementKey) => {
-                        const formatMessageId = `formatMessage({ id: '${replacementKey}' })`;
-                        if (formatMessageId) {
-                          editor.edit((editBuilder) => {
-                            editBuilder.replace(selection, formatMessageId);
-                          });
-                        }
-
-                        // 提示用戶是否添加到 en.json
-                        promptToAddKey(
-                          context,
-                          jsonFilePath,
-                          replacementKey,
-                          text
-                        );
-                      });
+              quickReplaceKeyWhenSingle(context, match.length).then(
+                (replace) => {
+                  if (match.length === 1 && replace) {
+                    replaceKey(match[0], text, selection, editor);
                   } else {
-                    // 如果用戶選擇了一個預定義的替換選項
-                    const formatMessageId = `formatMessage({ id: '${selectedItem.label}' })`;
-                    const replacementText =
-                      text.startsWith('"') && text.endsWith('"')
-                        ? formatMessageId
-                        : `{${formatMessageId}}`;
-
-                    editor.edit((editBuilder) => {
-                      editBuilder.replace(selection, replacementText);
+                    const pickItems = match.map((key) => ({
+                      label: key,
+                      description: `Replace with formatMessage({ id: '${key}' })`,
+                    }));
+                    pickItems.unshift({
+                      label: "Click to Enter replacement manually",
+                      description: "Type your own replacement",
                     });
+                    vscode.window
+                      .showQuickPick(pickItems, {
+                        placeHolder: `keys found for "${selectedText}", select one or enter manually:`,
+                      })
+                      .then((selectedItem) => {
+                        if (!selectedItem) {
+                          return;
+                        } else if (
+                          selectedItem.label ===
+                          "Click to Enter replacement manually"
+                        ) {
+                          // 如果用戶選擇手動輸入，使用 showInputBox 收集用戶輸入
+                          vscode.window
+                            .showInputBox({
+                              prompt: "Enter your replacement key",
+                            })
+                            .then((replacementKey) => {
+                              replaceKey(
+                                replacementKey,
+                                text,
+                                selection,
+                                editor
+                              );
+
+                              // 提示用戶是否添加到 en.json
+                              const addToJson = promptToAddKey(context);
+                              if (addToJson) {
+                                addToEnJson(jsonFilePath, replacementKey, text);
+                              }
+                            });
+                        } else {
+                          // 如果用戶選擇了一個預定義的替換選項
+                          replaceKey(
+                            selectedItem.label,
+                            text,
+                            selection,
+                            editor
+                          );
+                        }
+                      });
                   }
-                });
-              return;
+                }
+              );
             } else {
               vscode.window.showInformationMessage(
                 `No key found for value "${selectedText}" in en.json`
@@ -191,6 +233,20 @@ exports.activate = function (context) {
       }
     }
   });
-
+  // {
+  //   "command": "extension.resetIntlReplacePreference",
+  //   "title": "Reset Intl Replace Preference"
+  // }
+  // let resetPreferenceCommand = vscode.commands.registerCommand(
+  //   "extension.resetIntlReplacePreference",
+  //   () => {
+  //     context.globalState.update("IntlReplacePreference", "ask").then(() => {
+  //       vscode.window.showInformationMessage(
+  //         "Intl replace preference has been reset to ask."
+  //       );
+  //     });
+  //   }
+  // );
+  // context.subscriptions.push(resetPreferenceCommand);
   context.subscriptions.push(disposable);
 };

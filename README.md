@@ -38,6 +38,7 @@ recommand folder structure(Non-essential)
 To use the extension:
 
 1. Open a file in Visual Studio Code.
+
 2. Select the text you want to find a key for.
 
 3. Run the command `Find Key` either by pressing `Ctrl+Shift+P` to open the command palette and typing `Find Key`, or by clicking `alt(option)+k` on the selected text.
@@ -52,9 +53,11 @@ To use the extension:
 
 8. The extension now trims leading and trailing whitespace from the selected text and `en.json` text when comparing.
 
+9. To reset the preference, you can use the resetIntlPreference command in the command palette
+
 ## Known Issues
 
-- confict with Babel Javascript extension,when vscode consider the file is babel-javascript , snippet will fail
+- There is a conflict with the Babel JavaScript extension. When Visual Studio Code considers the file as babel-javascript, the snippets may fail to work properly.
 
 ## Release Notes 1.0.6
 
@@ -67,3 +70,4 @@ To use the extension:
 - Added a preference option to choose whether to add the key to en.json or not.
 - Added preference option to replace single keys with the same value or manually choose/enter the key.
 - Implemented the trim() function to remove leading and trailing whitespace from the selected text and en.json text when comparing.
+- You can reset the preference by using the `resetIntlPreference` command in the command palette.

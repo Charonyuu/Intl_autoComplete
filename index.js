@@ -50,13 +50,13 @@ function addToEnJson(jsonFilePath, replacementKey, text) {
 }
 
 // 提示用戶是否添加到 en.json
-function promptToAddKey(context) {
+async function promptToAddKey(context) {
   // 檢查是否已經有 'alwaysAddToEnJson' 的設置
   const alwaysAdd = context.globalState.get("alwaysAddToEnJson", false);
 
   if (alwaysAdd) return true;
   // 否則，詢問用戶是否添加，並提供一個 'Always Allow' 選項
-  const answer = vscode.window.showInformationMessage(
+  const answer = await vscode.window.showInformationMessage(
     `Do you want to add the key to en.json?`,
     "Yes",
     "Always Allow",
@@ -202,10 +202,11 @@ exports.activate = function (context) {
                       replaceKey(replacementKey, text, selection, editor);
 
                       // 提示用戶是否添加到 en.json
-                      const addToJson = promptToAddKey(context);
-                      if (addToJson) {
-                        addToEnJson(jsonFilePath, replacementKey, text);
-                      }
+                      promptToAddKey(context).then((yes) => {
+                        if (yes) {
+                          addToEnJson(jsonFilePath, replacementKey, text);
+                        }
+                      });
                     });
                 } else {
                   // 如果用戶選擇了一個預定義的替換選項
@@ -222,20 +223,20 @@ exports.activate = function (context) {
       }
     }
   });
-  // {
-  //   "command": "extension.resetIntlReplacePreference",
-  //   "title": "Reset Intl Replace Preference"
-  // }
-  // let resetPreferenceCommand = vscode.commands.registerCommand(
-  //   "extension.resetIntlReplacePreference",
-  //   () => {
-  //     context.globalState.update("IntlReplacePreference", "ask").then(() => {
-  //       vscode.window.showInformationMessage(
-  //         "Intl replace preference has been reset to ask."
-  //       );
-  //     });
-  //   }
-  // );
-  // context.subscriptions.push(resetPreferenceCommand);
+
+  let resetPreferenceCommand = vscode.commands.registerCommand(
+    "extension.resetIntlPreference",
+    () => {
+      Promise.all([
+        context.globalState.update("alwaysAddToEnJson", false),
+        context.globalState.update("IntlReplacePreference", "ask"),
+      ]).then(() => {
+        vscode.window.showInformationMessage(
+          "Both context states have been updated."
+        );
+      });
+    }
+  );
+  context.subscriptions.push(resetPreferenceCommand);
   context.subscriptions.push(disposable);
 };

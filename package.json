@@ -2,7 +2,7 @@
   "name": "intl-snippets",
   "displayName": "intl_autoComplete",
   "description": "react-intl snippet ",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "publisher": "charonyuu",
   "icon": "images/icon.png",
   "engines": {
@@ -10,7 +10,9 @@
   },
   "repository": {},
   "categories": [
-    "Snippets","Extension Packs","Formatters"
+    "Snippets",
+    "Extension Packs",
+    "Formatters"
   ],
   "main": "./index.js",
   "activationEvents": [
@@ -39,6 +41,10 @@
       {
         "command": "extension.findKey",
         "title": "Find Key for Selected Value in en.json"
+      },
+      {
+        "command": "extension.resetIntlPreference",
+        "title": "Reset Intl Preference"
       }
     ],
     "languages": [

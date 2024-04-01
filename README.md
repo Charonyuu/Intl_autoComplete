@@ -4,7 +4,7 @@
 
 ### Snippets Included
 
-<video src="example.mov" control title="Example"></video>
+![项目演示](images/demo.gif)
 
 | Snippet  | Purpose | Description |
 | ------------- | ------------- | ------------- |

@@ -4,7 +4,7 @@
 
 ### Snippets Included
 
-![项目演示](images/demo.gif)
+![項目教學](images/demo.gif)
 
 | Snippet  | Purpose | Description |
 | ------------- | ------------- | ------------- |

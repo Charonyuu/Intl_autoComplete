@@ -8,7 +8,10 @@
   "engines": {
     "vscode": "^1.85.1"
   },
-  "repository": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Charonyuu/Intl_autoComplete"
+  },
   "categories": [
     "Snippets",
     "Extension Packs",

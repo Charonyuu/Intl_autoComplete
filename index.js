@@ -43,7 +43,7 @@ function addToEnJson(jsonFilePath, replacementKey, text) {
           );
         });
     },
-    (error) => {
+    () => {
       vscode.window.showErrorMessage("Failed to read en.json");
     }
   );
@@ -140,13 +140,13 @@ exports.activate = function (context) {
         return;
       }
       const workspaceRoot = workspaceFolder.uri.fsPath;
-      const currentFilePath = currentFileUri.fsPath;
-      // 計算當前檔案相對於工作區根目錄的相對路徑
-      const relativePath = path.relative(workspaceRoot, currentFilePath);
-      // 獲取 relativePath 的第一個目錄名稱，位於哪個子目錄下
-      const firstDirectory = relativePath.split(path.sep)[0];
-      const currentRootFilePath = path.join(workspaceRoot, firstDirectory);
-      const jsonFilePath = findJsonFile(currentRootFilePath, "en.json");
+      // const currentFilePath = currentFileUri.fsPath;
+      // // 計算當前檔案相對於工作區根目錄的相對路徑
+      // const relativePath = path.relative(workspaceRoot, currentFilePath);
+      // // 獲取 relativePath 的第一個目錄名稱，位於哪個子目錄下
+      // const firstDirectory = relativePath.split(path.sep)[0];
+      // const currentRootFilePath = path.join(workspaceRoot, firstDirectory);
+      const jsonFilePath = findJsonFile(workspaceRoot, "en.json");
 
       if (!jsonFilePath) {
         vscode.window.showInformationMessage(
@@ -216,9 +216,39 @@ exports.activate = function (context) {
           }
         });
       } else {
-        vscode.window.showInformationMessage(
-          `No key found for value "${selectedText}" in en.json`
-        );
+        const pickItems = [
+          {
+            label: "Click to Enter replacement manually",
+            description: "Type your own replacement",
+          },
+        ];
+        vscode.window
+          .showQuickPick(pickItems, {
+            placeHolder: `No key found for value "${selectedText}" in en.json, close or enter manually:`,
+          })
+          .then((selectedItem) => {
+            if (!selectedItem) {
+              return;
+            } else if (
+              selectedItem.label === "Click to Enter replacement manually"
+            ) {
+              // 如果用戶選擇手動輸入，使用 showInputBox 收集用戶輸入
+              vscode.window
+                .showInputBox({
+                  prompt: "Enter your replacement key",
+                })
+                .then((replacementKey) => {
+                  replaceKey(replacementKey, text, selection, editor);
+
+                  // 提示用戶是否添加到 en.json
+                  promptToAddKey(context).then((yes) => {
+                    if (yes) {
+                      addToEnJson(jsonFilePath, replacementKey, text);
+                    }
+                  });
+                });
+            }
+          });
         return;
       }
     }

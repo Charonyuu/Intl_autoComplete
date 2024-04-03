@@ -50,9 +50,9 @@ function addToEnJson(jsonFilePath, replacementKey, text) {
 }
 
 // 提示用戶是否添加到 en.json
-async function promptToAddKey(context) {
+async function promptToAddKey() {
   // 檢查是否已經有 'addInEnJsonSetting' 的設置
-  let config = vscode.workspace.getConfiguration("intl_autoComplete");
+  let config = vscode.workspace.getConfiguration("intlAutoComplete");
   let settingValue = config.get("addInEnJsonSetting");
 
   if (settingValue === "Always Add") return true;
@@ -89,13 +89,9 @@ async function promptToAddKey(context) {
 }
 
 // 快速替換單個鍵值對
-async function quickReplaceKeyWhenSingle(context, matchLength) {
+async function quickReplaceKeyWhenSingle(matchLength) {
   if (matchLength > 1) return false;
-  const replacePreference = context.globalState.get(
-    "IntlReplacePreference",
-    false
-  );
-  let config = vscode.workspace.getConfiguration("intl_autoComplete");
+  let config = vscode.workspace.getConfiguration("intlAutoComplete");
   let replaceSetting = config.get("singleValueReplaceSetting");
 
   if (replaceSetting === "Always Replace") return true;
@@ -195,7 +191,7 @@ exports.activate = function (context) {
         }
       }
       if (match.length > 0) {
-        quickReplaceKeyWhenSingle(context, match.length).then((replace) => {
+        quickReplaceKeyWhenSingle(match.length).then((replace) => {
           if (match.length === 1 && replace) {
             replaceKey(match[0], text, selection, editor);
           } else {
@@ -226,7 +222,7 @@ exports.activate = function (context) {
                       replaceKey(replacementKey, text, selection, editor);
 
                       // 提示用戶是否添加到 en.json
-                      promptToAddKey(context).then((yes) => {
+                      promptToAddKey().then((yes) => {
                         if (yes) {
                           addToEnJson(jsonFilePath, replacementKey, text);
                         }
@@ -265,7 +261,7 @@ exports.activate = function (context) {
                   replaceKey(replacementKey, text, selection, editor);
 
                   // 提示用戶是否添加到 en.json
-                  promptToAddKey(context).then((yes) => {
+                  promptToAddKey().then((yes) => {
                     if (yes) {
                       addToEnJson(jsonFilePath, replacementKey, text);
                     }
@@ -278,19 +274,5 @@ exports.activate = function (context) {
     }
   });
 
-  let resetPreferenceCommand = vscode.commands.registerCommand(
-    "extension.resetIntlPreference",
-    () => {
-      Promise.all([
-        context.globalState.update("alwaysAddToEnJson", false),
-        context.globalState.update("IntlReplacePreference", "ask"),
-      ]).then(() => {
-        vscode.window.showInformationMessage(
-          "Both context states have been updated."
-        );
-      });
-    }
-  );
-  context.subscriptions.push(resetPreferenceCommand);
   context.subscriptions.push(disposable);
 };

@@ -2,7 +2,7 @@
   "name": "intl-snippets",
   "displayName": "intl_autoComplete",
   "description": "react-intl snippet and extension for auto complete",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "publisher": "charonyuu",
   "icon": "images/icon.png",
   "engines": {
@@ -77,7 +77,7 @@
     "configuration": {
       "title": "Intl Auto Complete Settings",
       "properties": {
-        "intl_autoComplete.singleValueReplaceSetting": {
+        "intlAutoComplete.singleValueReplaceSetting": {
           "type": "string",
           "default": "Always Ask",
           "enum": [
@@ -92,7 +92,7 @@
             "Always replace single value manually"
           ]
         },
-        "intl_autoComplete.addInEnJsonSetting": {
+        "intlAutoComplete.addInEnJsonSetting": {
           "type": "string",
           "default": "Always Ask",
           "enum": [

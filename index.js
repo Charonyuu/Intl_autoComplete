@@ -51,27 +51,41 @@ function addToEnJson(jsonFilePath, replacementKey, text) {
 
 // 提示用戶是否添加到 en.json
 async function promptToAddKey(context) {
-  // 檢查是否已經有 'alwaysAddToEnJson' 的設置
-  const alwaysAdd = context.globalState.get("alwaysAddToEnJson", false);
+  // 檢查是否已經有 'addInEnJsonSetting' 的設置
+  let config = vscode.workspace.getConfiguration("intl_autoComplete");
+  let settingValue = config.get("addInEnJsonSetting");
 
-  if (alwaysAdd) return true;
+  if (settingValue === "Always Add") return true;
+  if (settingValue === "Never Add") return false;
+
   // 否則，詢問用戶是否添加，並提供一個 'Always Allow' 選項
   const answer = await vscode.window.showInformationMessage(
     `Do you want to add the key to en.json?`,
     "Yes",
-    "Always Allow",
+    "Always Add",
+    "Never Add",
     "No"
   );
 
-  if (answer === "Yes" || answer === "Always Allow") {
-    if (answer === "Always Allow") {
-      // 如果選擇 'Always Allow'，將這個選項保存到全局狀態中
-      context.globalState.update("alwaysAddToEnJson", true);
-    }
+  if (answer === "Yes") return true;
+  if (answer === "Always Add") {
+    await config.update(
+      "addInEnJsonSetting",
+      "Always Add",
+      vscode.ConfigurationTarget.Global
+    );
     return true;
-  } else {
+  }
+  if (answer === "Never Add") {
+    await config.update(
+      "addInEnJsonSetting",
+      "Never Add",
+      vscode.ConfigurationTarget.Global
+    );
     return false;
   }
+  // 用户选择 "No" 或关闭对话框
+  return false;
 }
 
 // 快速替換單個鍵值對
@@ -81,9 +95,11 @@ async function quickReplaceKeyWhenSingle(context, matchLength) {
     "IntlReplacePreference",
     false
   );
+  let config = vscode.workspace.getConfiguration("intl_autoComplete");
+  let replaceSetting = config.get("singleValueReplaceSetting");
 
-  if (replacePreference === "Always Replace") return true;
-  if (replacePreference === "Always Manually") return false;
+  if (replaceSetting === "Always Replace") return true;
+  if (replaceSetting === "Always Manually") return false;
   // 否則，詢問用戶是否添加，並提供一個 'Always Allow' 選項
   const answer = await vscode.window.showQuickPick(
     ["Always Replace", "Replace", "Select Manually", "Always Manually"],
@@ -93,11 +109,19 @@ async function quickReplaceKeyWhenSingle(context, matchLength) {
   );
 
   if (answer === "Always Manually") {
-    context.globalState.update("IntlReplacePreference", "Always Manually");
+    await config.update(
+      "singleValueReplaceSetting",
+      "Always Manually",
+      vscode.ConfigurationTarget.Global
+    );
     return false;
   }
   if (answer === "Always Replace") {
-    context.globalState.update("IntlReplacePreference", "Always Replace");
+    await config.update(
+      "singleValueReplaceSetting",
+      "Always Replace",
+      vscode.ConfigurationTarget.Global
+    );
     return true;
   }
   if (answer === "Replace") return true;

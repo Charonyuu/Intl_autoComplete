@@ -4,7 +4,7 @@
 
 ### Snippets Included
 
-![項目教學](images/demo.gif)
+![DemoVideo](images/demo.gif)
 
 | Snippet | Purpose                     | Description                                                                                                    |
 | ------- | --------------------------- | -------------------------------------------------------------------------------------------------------------- |
@@ -74,5 +74,6 @@ To use the extension:
 - Added a preference option to choose whether to add the key to en.json or not.
 - Added preference option to replace single keys with the same value or manually choose/enter the key.
 - Implemented the trim() function to remove leading and trailing whitespace from the selected text and en.json text when comparing.
-- You can reset the preference by using the `resetIntlPreference` command in the command palette.
-- Update new logo~
+- You can set the preference by Intl Auto Complete Setting
+![settingDemo](images/setting.png)
+

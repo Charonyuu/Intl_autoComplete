@@ -2,7 +2,7 @@
   "name": "intl-snippets",
   "displayName": "intl_autoComplete",
   "description": "react-intl snippet and extension for auto complete",
-  "version": "1.0.13",
+  "version": "1.1.0",
   "publisher": "charonyuu",
   "icon": "images/icon.png",
   "engines": {
@@ -73,7 +73,42 @@
         "mac": "alt+k",
         "when": "editorTextFocus"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Intl Auto Complete Settings",
+      "properties": {
+        "intl_autoComplete.singleValueReplaceSetting": {
+          "type": "string",
+          "default": "Always Ask",
+          "enum": [
+            "Always Replace",
+            "Always Ask",
+            "Always Manually"
+          ],
+          "description": "Replace single value automatically or manually",
+          "enumDescriptions": [
+            "Always replace single value automatically",
+            "Always ask before replace single value",
+            "Always replace single value manually"
+          ]
+        },
+        "intl_autoComplete.addInEnJsonSetting": {
+          "type": "string",
+          "default": "Always Ask",
+          "enum": [
+            "Always Add",
+            "Always Ask",
+            "Never Add"
+          ],
+          "description": "Add new key in en.json automatically or manually",
+          "enumDescriptions": [
+            "Always add new key in en.json automatically",
+            "Always ask before add new key in en.json",
+            "Never add new key in en.json"
+          ]
+        }
+      }
+    }
   },
   "scripts": {
     "build": "vsce package",

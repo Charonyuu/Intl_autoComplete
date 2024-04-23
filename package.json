@@ -2,7 +2,7 @@
   "name": "intl-snippets",
   "displayName": "react-intl-autoComplete",
   "description": "react-intl snippet and extension for auto complete",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "publisher": "charonyuu",
   "icon": "images/icon.png",
   "engines": {
@@ -106,6 +106,16 @@
             "Always ask before add new key in en.json",
             "Never add new key in en.json"
           ]
+        },
+        "intlAutoComplete.translationFile": {
+          "type": "string",
+          "default": "en.json",
+          "description": "Translation file name, for example: en.json, zh-tw.json, etc.\nIt is for adding new key in translation file or finding key-value in the translation file when not setting directTranslationFilePath.(directTranslationFilePath priority is higher than this setting)"
+        },
+        "intlAutoComplete.translationFileDirectPath": {
+          "type": "string",
+          "default": "",
+          "description": "(Optional)\nSpecifies the direct path to the translation file (relative to the workspace).\nIt is used to find a file that is located on a complicated path or not within the workspace.\nIf set, it will make the searching process faster (though I don't have a strong feeling about it XD).\nIf left empty, the extension will first look for the translation file at 'src/locales/intl/${translationFile}'.\nIf not found there, it will then search for the translation file in the same file name."
         }
       }
     }

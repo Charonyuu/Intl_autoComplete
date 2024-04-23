@@ -2,9 +2,35 @@ const vscode = require("vscode");
 const fs = require("fs");
 const path = require("path"); // 确保你也引入了 path 模块
 
+const getFileName = () => {
+  const directTranslationFilePath = vscode.workspace
+    .getConfiguration("intlAutoComplete")
+    .get("directTranslationFilePath");
+  if (directTranslationFilePath) return directTranslationFilePath;
+  return translateFile();
+};
+
+const translateFile = () => {
+  return vscode.workspace
+    .getConfiguration("intlAutoComplete")
+    .get("translationFile");
+};
+
 // 遞迴查找指定目錄下的指定文件
-function findJsonFile(directory, fileName) {
-  let jsonFilePath = path.join(directory, "src", "locales", "intl", "en.json");
+function findJsonFile(directory) {
+  const fileName = translateFile();
+  let jsonFilePath;
+  const directTranslationFilePath = vscode.workspace
+    .getConfiguration("intlAutoComplete")
+    .get("directTranslationFilePath");
+
+  // 如果有設定直接翻譯檔案路徑，則使用該路徑
+  if (directTranslationFilePath) {
+    jsonFilePath = path.join(directory, directTranslationFilePath);
+  } else {
+    jsonFilePath = path.join(directory, "src", "locales", "intl", fileName);
+  }
+
   if (fs.existsSync(jsonFilePath)) return jsonFilePath;
   const files = fs.readdirSync(directory);
   for (const file of files) {
@@ -20,7 +46,7 @@ function findJsonFile(directory, fileName) {
   return null;
 }
 
-// 添加新的鍵值對到 en.json
+// 添加新的鍵值對到 ${getFileName()}
 function addToEnJson(jsonFilePath, replacementKey, text) {
   const uri = vscode.Uri.file(jsonFilePath);
   vscode.workspace.fs.readFile(uri).then(
@@ -34,22 +60,22 @@ function addToEnJson(jsonFilePath, replacementKey, text) {
       // 將修改後的 JSON 對象轉換回字串格式
       const updatedContent = JSON.stringify(jsonContent, null, 2);
 
-      // 寫回修改後的內容到 en.json 檔案
+      // 寫回修改後的內容到 ${getFileName()} 檔案
       vscode.workspace.fs
         .writeFile(uri, Buffer.from(updatedContent))
         .then(() => {
           vscode.window.showInformationMessage(
-            `Added "${replacementKey}": "${text}" to en.json`
+            `Added "${replacementKey}": "${text}" to ${getFileName()}`
           );
         });
     },
     () => {
-      vscode.window.showErrorMessage("Failed to read en.json");
+      vscode.window.showErrorMessage(`Failed to read ${getFileName()}`);
     }
   );
 }
 
-// 提示用戶是否添加到 en.json
+// 提示用戶是否添加到 ${getFileName()}
 async function promptToAddKey() {
   // 檢查是否已經有 'addInEnJsonSetting' 的設置
   let config = vscode.workspace.getConfiguration("intlAutoComplete");
@@ -60,7 +86,7 @@ async function promptToAddKey() {
 
   // 否則，詢問用戶是否添加，並提供一個 'Always Allow' 選項
   const answer = await vscode.window.showInformationMessage(
-    `Do you want to add the key to en.json?`,
+    `Do you want to add the key to ${getFileName()}?`,
     "Yes",
     "Always Add",
     "Never Add",
@@ -84,7 +110,7 @@ async function promptToAddKey() {
     );
     return false;
   }
-  // 用户选择 "No" 或关闭对话框
+  // 如果用戶選擇了 'No'，則不添加到 ${getFileName()}
   return false;
 }
 
@@ -155,7 +181,7 @@ exports.activate = function (context) {
         vscode.workspace.getWorkspaceFolder(currentFileUri);
       if (!workspaceFolder) {
         vscode.window.showInformationMessage(
-          "en.json not found in the specified directory"
+          `${getFileName()} not found in the specified directory`
         );
         return;
       }
@@ -166,11 +192,11 @@ exports.activate = function (context) {
       // // 獲取 relativePath 的第一個目錄名稱，位於哪個子目錄下
       // const firstDirectory = relativePath.split(path.sep)[0];
       // const currentRootFilePath = path.join(workspaceRoot, firstDirectory);
-      const jsonFilePath = findJsonFile(workspaceRoot, "en.json");
+      const jsonFilePath = findJsonFile(workspaceRoot);
 
       if (!jsonFilePath) {
         vscode.window.showInformationMessage(
-          "en.json not found in the specified directory"
+          `${getFileName()} not found in the specified directory`
         );
         return;
       }
@@ -219,9 +245,10 @@ exports.activate = function (context) {
                       prompt: "Enter your replacement key",
                     })
                     .then((replacementKey) => {
+                      if (!replacementKey) return;
                       replaceKey(replacementKey, text, selection, editor);
 
-                      // 提示用戶是否添加到 en.json
+                      // 提示用戶是否添加到 ${getFileName()}
                       promptToAddKey().then((yes) => {
                         if (yes) {
                           addToEnJson(jsonFilePath, replacementKey, text);
@@ -244,7 +271,7 @@ exports.activate = function (context) {
         ];
         vscode.window
           .showQuickPick(pickItems, {
-            placeHolder: `No key found for value "${selectedText}" in en.json, close or enter manually:`,
+            placeHolder: `No key found for value "${selectedText}" in ${getFileName()}, close or enter manually:`,
           })
           .then((selectedItem) => {
             if (!selectedItem) {
@@ -258,9 +285,10 @@ exports.activate = function (context) {
                   prompt: "Enter your replacement key",
                 })
                 .then((replacementKey) => {
+                  if (!replacementKey) return;
                   replaceKey(replacementKey, text, selection, editor);
 
-                  // 提示用戶是否添加到 en.json
+                  // 提示用戶是否添加到 ${getFileName()}
                   promptToAddKey().then((yes) => {
                     if (yes) {
                       addToEnJson(jsonFilePath, replacementKey, text);

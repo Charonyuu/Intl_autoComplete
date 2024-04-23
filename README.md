@@ -27,8 +27,8 @@ recommand folder structure(Non-essential)
          /intl
             /en.json
 ```
-> Please be aware that if your Visual Studio Code workspace includes multiple project directories, you might inadvertently access the wrong en.json file. This is because the extension uses workspaceRoot to search for en.json. The search function might locate and use an en.json file from a different project folder within the same workspace. Therefore, it is advisable to use a single project within a workspace. Thank you.
 
+> Please be aware that if your Visual Studio Code workspace includes multiple project directories, you might inadvertently access the wrong en.json file. This is because the extension uses workspaceRoot to search for en.json. The search function might locate and use an en.json file from a different project folder within the same workspace. Therefore, it is advisable to use a single project within a workspace. Thank you.
 
 3. Parses the JSON file and searches for keys corresponding to the selected text.
 
@@ -64,16 +64,18 @@ To use the extension:
 
 - The extension may encounter errors when trying to find the en.json file in multiple project directories.
 
-## Release Notes 1.0.13
+## Release Notes 1.2.0
 
 - Includes snippets for simplifying intl React component initialization and formatMessage usage.
 - Allows users to find keys in an `en.json` file based on selected text and replace it with the corresponding `formatMessage` function.
 - Fixed the issue that required a specific path.
+- Fixed the issue that enter empty string or press ESC will add undefined in translation file.
 - Added a quick pick for selecting the correct key when multiple keys have the same value.
 - Added an option to manually enter text when the selected value cannot be found in en.json.
 - Added a preference option to choose whether to add the key to en.json or not.
 - Added preference option to replace single keys with the same value or manually choose/enter the key.
 - Implemented the trim() function to remove leading and trailing whitespace from the selected text and en.json text when comparing.
+- Add config for change translation file.Not only for en.json, but also for other language files.
+- Add specifies the direct path to the translation file (relative to the workspace), which can be useful when the file is not in the default location, such as in a subfolder or a different project directory.
 - You can set the preference by Intl Auto Complete Setting
-![settingDemo](images/setting.png)
-
+  ![settingDemo](images/setting.png)

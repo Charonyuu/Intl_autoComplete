@@ -1,10 +1,11 @@
 # intl-snippets README
+If you like it, please give it a star ⭐ to let more people know,thx~.
 
 ## Features
 
-### Snippets Included
-
 ![DemoVideo](images/demo.gif)
+
+### Snippets Included
 
 | Snippet | Purpose                     | Description                                                                                                    |
 | ------- | --------------------------- | -------------------------------------------------------------------------------------------------------------- |

@@ -37,7 +37,7 @@ function findJsonFile(directory) {
     const fullPath = path.join(directory, file);
     const stat = fs.statSync(fullPath);
     if (stat.isDirectory()) {
-      const result = findJsonFile(fullPath, fileName);
+      const result = findJsonFile(fullPath);
       if (result) return result;
     } else if (file === fileName) {
       return fullPath;

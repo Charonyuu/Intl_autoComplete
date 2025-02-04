@@ -54,6 +54,10 @@ function addToEnJson(jsonFilePath, replacementKey, text) {
       // 將讀取到的檔案內容解析為 JSON 對象
       const jsonContent = JSON.parse(fileBuffer.toString());
 
+      if (text.startsWith('"') && text.endsWith('"')) {
+        text = text.substring(1, text.length - 1);
+      }
+
       // 添加新的鍵值對
       jsonContent[replacementKey] = text;
 

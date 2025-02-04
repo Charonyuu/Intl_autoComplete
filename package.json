@@ -2,7 +2,7 @@
   "name": "intl-snippets",
   "displayName": "react-intl-autoComplete",
   "description": "react-intl snippet and extension for auto complete",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "publisher": "charonyuu",
   "icon": "images/icon.png",
   "engines": {
